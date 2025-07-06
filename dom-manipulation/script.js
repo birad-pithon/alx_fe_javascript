@@ -11,14 +11,15 @@ function saveQuotes() {
 }
 
 function populateCategories(){
-  const categoryFilter = document.getElementById("categoryFilter");
-  const categories = ["all", ...new Set(quotes.map((q) => q.category))];
-
-  categoryFilter.innerHTML = categories
-    .map(
-      (cat) => `<option value="${cat}" ${getLastCategory() === cat ? "selected" : ""}>${cat}</option>`
-    )
-    .join("");
+  const categories = [...new Set(quotes.map(q => q.category))];
+  const dropdown = document.getElementById('categoryFilter');
+  dropdown.innerHTML = `<option value="all">All Categories</option>`;
+  categories.forEach(cat => {
+    const option = document.createElement('option');
+    option.value = cat;
+    option.textContent = cat;
+    dropdown.appendChild(option);
+  });
 }
 
 function getLastCategory() {
@@ -69,9 +70,12 @@ function addQuote() {
 }
 
 function filterQuotes() {
-  const selected = document.getElementById("categoryFilter").value;
-  localStorage.setItem("lastCategory", selected);
-  showRandomQuote();
+ const selectedCategory = document.getElementById('categoryFilter').value;
+  localStorage.setItem('lastSelectedCategory', selectedCategory);
+  const filtered = selectedCategory === 'all'
+    ? quotes
+    : quotes.filter(q => q.category === selectedCategory);
+  // update DOM logic... 
 }
 
 function exportToJsonFile() {
