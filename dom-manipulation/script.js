@@ -11,7 +11,7 @@ function saveQuotes() {
 }
 
 function populateCategories(){
-  const categories = [...new Set(quotes.map(q => q.category))];
+   const categories = [...new Set(quotes.map(q => q.category))];
   const dropdown = document.getElementById('categoryFilter');
   dropdown.innerHTML = `<option value="all">All Categories</option>`;
   categories.forEach(cat => {
