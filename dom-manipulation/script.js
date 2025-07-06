@@ -1,10 +1,30 @@
+// Dynamic Quote Generator with Web Storage, Filtering, JSON Import/Export, and Server Sync
+
+let quotes = [];
+const quoteDisplay = document.getElementById("quoteDisplay");
+const categoryFilter = document.getElementById("categoryFilter");
+const lastViewedKey = "lastViewedQuote";
+
 // Load from Local storage or initialize with defaults
-let quotes = JSON.parse(localStorage.getItem("quotes")) || [
+function loadQuotes() {
+  const storedQuotes = localStorage.getItem("quotes");
+  if (storedQuotes) {
+    quotes = JSON.parse(storedQuotes);
+  } else{
+    quote= [
   { text: "The journey of a thousand miles begins with one step.", category: "Motivation" },
   { text: "Life is what happens when you're busy making other plans.", category: "Life" },
   { text: "Do not go where the path may lead, go instead where there is no path and leave a trail.", category: "Inspiration" },
-];
+  ];
+  saveQuotes();
+ }
+}
 
+function saveQuotes() {
+  localStorage.setItem("quotes", JSON.stringify(quotes));
+}
+
+  
 // Restore last selected category from localstorage
 let selectedCategory = localStorage.getItem('selectedCategory') || 'all';
 
@@ -37,9 +57,6 @@ function showRandomQuote() {
   // Optional session storage: save last quote
   sessionStorage.setItem("lastQuote", JSON.stringify(quote) )
 }
-
-
-
 
 function addQuote() {
   const textInput = document.getElementById('newQuoteText');
