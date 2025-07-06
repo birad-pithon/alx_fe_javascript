@@ -36,26 +36,41 @@
       cursor: pointer;
     }
   </style>
-  
-  
   </head>
   <body>
+
     <h1>Dynamic Quote Generator</h1>
-    <div id="quoteDisplay">Click "Show New Quote" to begin</div>
-    <div class="controls">
-     <button id="newQuote">Show New Quote</button> 
+
+    <!-- Quote display -->
+    <div id="quoteDisplay">Loading quote...</div>
+
+    <!-- Show new quote -->
+    <button id="newQuote">Show New Quote</button> 
+    
+    <!-- Category filter -->
+    <div>
+      <label for="categoryFilter">Filter by category:</label>
+      <select id="categoryFilter">
+        <option value="all">All Categories</option>
+      </select>
     </div>
 
-    <div class="controls">
+    <!-- Add quote form-->
+    <div class="form-section">
+      <h2>Add a New Quote</h2>
       <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
       <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-      <button onclick="addQuote()">Add Quote</button>
+      <button id="addQuoteBtn">Add Quote</button>
     </div>
-
-    <div>
+    
+    <!-- Import/export -->
+    <div class="form-section">
+      <h2>Import / Export Quotes</h2>
       <button onclick="exportToJsonFile()">Export Quotes</button>
       <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
     </div>
+
+    <!-- Javasript logic -->
     <script src="script.js"></script>
   </body>
   </html>
