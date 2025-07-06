@@ -10,15 +10,34 @@ function saveQuotes() {
   localStorage.setItem("quotes", JSON.stringify(quotes));
 }
 
+function populateCategories(){
+  const categoryFilter = document.getElementById("categoryFilter");
+  const categories = ["all", ...new Set(quotes.map((q) => q.category))];
 
+  categoryFilter.innerHTML = categories
+    .map(
+      (cat) => `<option value="${cat}" ${getLastCategory() === cat ? "selected" : ""}>${cat}</option>`
+    )
+    .join("");
+}
+
+function getLastCategory() {
+  return localStorage.getItem("latCategory")|| "all";
+}
 function showRandomQuote() {
   const quoteDisplay = document.getElementById('quoteDisplay');
+  const selectedCategory = getLastCategory();
+  const filteredQuotes= selectedCategory ==="all"
+     ? quotes
+     : quotes.filter((q) => q.category === selectedCategory);
+
   if (quotes.length === 0) {
-    quoteDisplay.innerText = "No quotes available. Add one!";
+    quoteDisplay.innerText = "No quotes available in this category. Add one!";
     return;
   }
-  const randomIndex = Math.floor(Math.random() * quotes.length);
-  const quote = quotes[randomIndex];
+
+  const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+  const quote = filteredQuotes[randomIndex];
   quoteDisplay.innerHTML = `<p>"${quote.text}"</p><em>— ${quote.category}</em>`;
 
   // Optional session storage: save last quote
@@ -42,10 +61,16 @@ function addQuote() {
   saveQuotes();
 
   // Clear input fields
-  textInput.value = '';
-  categoryInput.value = '';
+  textInput.value = "";
+  categoryInput.value = "";
 
-  // Optionally show the newly added quote
+  populateCategories();
+  showRandomQuote();
+}
+
+function filterQuotes() {
+  const selected = document.getElementById("categoryFilter").value;
+  localStorage.setItem("lastCategory", selected);
   showRandomQuote();
 }
 
@@ -83,7 +108,12 @@ function importFromJsonFile(event) {
 document.getElementById('newQuote').addEventListener('click', showRandomQuote);
 document.getElementById('addQuoteBtn').addEventListener('click', addQuote);
 
-// Show Last quote on Load if exists
+document.getElementById("categoryFilter").addEventListener("change", filterQuotes);
+
+
+// Initialize app
+populateCategories();
+
 const lastQuote = sessionStorage.getItem("lastQuote");
 if (lastQuote) {
   const quote = JSON.parse(lastQuote);
