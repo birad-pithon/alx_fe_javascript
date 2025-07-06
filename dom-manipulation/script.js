@@ -42,6 +42,7 @@ function addQuote() {
 
 // Event listener for "Show New Quote" button
 document.getElementById('newQuote').addEventListener('click', showRandomQuote);
+document.getElementById('addQuoteBtn').addEventListener('click', addQuote);
 
 // Optional: Show one quote when page loads
 showRandomQuote();
