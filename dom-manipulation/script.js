@@ -5,56 +5,15 @@ let quotes = JSON.parse(localStorage.getItem("quotes")) || [
   { text: "Do not go where the path may lead, go instead where there is no path and leave a trail.", category: "Inspiration" },
 ];
 
-// Load quotes from local storage if available
-const storedQuotes = localStorage.getItem('quotes');
-if (storedQuotes) {
-  quotes = JSON.parse(storedQuotes);
-}
+// Restore last selected category from localstorage
+let selectedCategory = localStorage.getItem('selectedCategory') || 'all';
 
-// Fuction to save quotes to local storage
-function saveQuotes() {
-  localStorage.setItem("quotes", JSON.stringify(quotes));
-}
+document.addEventListener('DOMContentLoaded', () => {
+  populateCategories();
+  document.getElementById('categoryFilter').value = selectedCategory;
+  filterQuotes();
+});
 
-function populateCategories(){
-   const categories = [...new Set(quotes.map(q => q.category))];
-  const dropdown = document.getElementById('categoryFilter');
-  dropdown.innerHTML = `<option value="all">All Categories</option>`;
-  categories.forEach(cat => {
-    const option = document.createElement('option');
-    option.value = cat;
-    option.textContent = cat;
-    dropdown.appendChild(option);
-  });
-
-  const savedCategory = localStorage.getItem('lastSelectedCategory');
-  if (savedCategory) {
-    dropdown.value = savedCategory;
-  }
-}
-
-function fetchQuotesFromServer() {
-  return fetch('https://jsonplaceholder.typicode.com/posts?_limit=5')
-    .then(response => response.json())
-    .then(data => {
-      return data.map(item => ({
-        text: item.title,
-        category: "Server"
-      }));
-    });
-}
-
-
-function postQuoteToServer(quote) {
-  fetch('https://jsonplaceholder.typicode.com/posts', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(quote)
-  });
-}
-function getLastCategory() {
-  return localStorage.getItem("latCategory")|| "all";
-}
 function showRandomQuote() {
   const quoteDisplay = document.getElementById('quoteDisplay');
   if (quotes.length === 0) {
@@ -79,7 +38,9 @@ function showRandomQuote() {
   sessionStorage.setItem("lastQuote", JSON.stringify(quote) )
 }
 
-// Function to add a new quote
+
+
+
 function addQuote() {
   const textInput = document.getElementById('newQuoteText');
   const categoryInput = document.getElementById('newQuoteCategory');
@@ -91,29 +52,69 @@ function addQuote() {
     return;
   }
 
-  // Add the new quote to the array
-  quotes.push({ text, category });
+  const newQuote = { text, category };
+  quotes.push(newQuote);
   saveQuotes();
+  postQuoteToServer(newQuote);
 
-  // Clear input fields
-  textInput.value = "";
-  categoryInput.value = "";
+  textInput.value = '';
+  categoryInput.value = '';
 
   populateCategories();
+  filterQuotes();
+  showNotification('New quote added!');
+}
+
+// Fuction to save quotes to local storage
+function saveQuotes() {
+  localStorage.setItem("quotes", JSON.stringify(quotes));
+}
+
+function populateCategories(){
+   const categorySet = new Set(['all']);
+   quotes.forEach(q => categorySet.add(q.category));
+
+   const categoryFilter = document.getElementById('categoryFilter');
+   categoryFilter.innerHTML= '';
+   categorySet.forEach(cat => {
+    const option = document.createElement('option');
+    option.value = cat;
+    option.textContent = cat;
+    categoryFilter.appendChild(option);
+   });
+}
+
+function fetchQuotesFromServer() {
+  return fetch('https://jsonplaceholder.typicode.com/posts?_limit=5')
+    .then(response => response.json())
+    .then(data => {
+      return data.map(item => ({
+        text: item.title,
+        category: "Server"
+      }));
+    });
+}
+
+
+function getLastCategory() {
+  return localStorage.getItem("latCategory")|| "all";
+}
+ = Math.floor(Math.random() * filteredQuotes.length);
+  const quote = filteredQuotes[randomIndex];
+  quoteDisplay.innerHTML = `<p>"${quote.text}"</p><em>— ${quote.category}</em>`;
+
+  // Optional session storage: save last quote
+  sessionStorage.setItem("lastQuote", JSON.stringify(quote) );
+
+
+function filterQuotes() {
+  const selectedCategory = document.getElementById('categoryFilter').value;
+  selectedCategory = category;
+  localStorage.setItem('selectedCategory', category);
   showRandomQuote();
 }
 
-function filterQuotes() {
- const selectedCategory = document.getElementById('categoryFilter').value;
-  localStorage.setItem('lastSelectedCategory', selectedCategory);
-  const filtered = selectedCategory === 'all'
-    ? quotes
-    : quotes.filter(q => q.category === selectedCategory);
-  // update DOM logic... 
-}
 
-
-// Notify user of sync or conflict resolution
 function showNotification(message) {
   const notification = document.getElementById(notification);
   notification.innerText = message;
@@ -155,6 +156,18 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
+// --- Server Simulation Functions ---
+
+function fetchQuotesFromServer(){
+  return fetch('https://jsonplaceholder.typicode.com/posts?_limit=5')
+    .then(response => response.json())
+    .then(data => {
+      return data.map(item => ({
+        text: item.title,
+        category: "Server"
+      }));
+    });
+}
 function syncQuotes(){
   fetchQuotesFromServer().then(serverQuotes => {
     let updated = false;
@@ -171,8 +184,9 @@ function syncQuotes(){
       filterQuotes();
     }
   });
-  setInterval(syncQuotes, 10000); // Sync every 10 seconds
 }
+
+setInterval(syncQuotes, 10000); // Every 10 seconds
 
 
 // Event listener 
